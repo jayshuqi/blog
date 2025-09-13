@@ -1,0 +1,123 @@
+---
+import { LANGUAGE_LIST } from "../constants";
+
+const languages = LANGUAGE_LIST
+const { currentLocale } = Astro
+const currentLanguageName = languages.find(m => m.code === currentLocale)!.nativeName
+---
+
+<div class="relative language-switcher">
+    <button
+            class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-white rounded-md hover:bg-gray-50 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] transition-colors"
+            id="language-toggle"
+    >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
+            />
+        </svg>
+        <span class="hidden sm:inline" id="current-language">{currentLanguageName}</span>
+        <svg class="w-4 h-4 transition-transform" id="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
+    </button>
+
+    <div
+            class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50 hidden"
+            id="language-menu"
+    >
+        <div class="py-1">
+            {languages.map(lang => (
+                    <button
+                            class="flex items-center justify-between w-full px-4 py-2 text-left hover:bg-gray-100 focus:bg-gray-100 focus:outline-none transition-colors"
+                            data-code={lang.code}
+                    >
+                        <div class="flex flex-col">
+                            <span class="font-medium text-gray-900">{lang.nativeName}</span>
+                            <span class="text-xs text-gray-500">{lang.name}</span>
+                        </div>
+                        <svg
+                                class="w-4 h-4 text-blue-600 hidden check-icon"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                        >
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </button>
+            ))}
+        </div>
+    </div>
+</div>
+
+<script is:inline define:vars={{currentLocale}}>
+    const languages = {
+        en: { nativeName: "English", path: "/" },
+        zh: { nativeName: "中文", path: "/zh" },
+    }
+
+    function updateCheckIcons(activeCode) {
+        const menu = document.getElementById("language-menu")
+        if (!menu) return;
+        
+        menu.querySelectorAll("button").forEach(btn => {
+            const checkIcon = btn.querySelector(".check-icon")
+            if (btn.dataset.code === activeCode) {
+                checkIcon.classList.remove("hidden")
+            } else {
+                checkIcon.classList.add("hidden")
+            }
+        })
+    }
+
+    function initLanguageSwitcher() {
+        // 初始化对勾状态
+        updateCheckIcons(currentLocale)
+    }
+
+    // 使用事件委托处理所有点击事件
+    document.addEventListener("click", (e) => {
+        const toggle = document.getElementById("language-toggle")
+        const menu = document.getElementById("language-menu")
+        const currentLangEl = document.getElementById("current-language")
+        const dropdownIcon = document.getElementById("dropdown-icon")
+
+        if (!toggle || !menu || !currentLangEl || !dropdownIcon) return;
+
+        // 处理语言切换按钮点击
+        if (e.target.closest("#language-toggle")) {
+            menu.classList.toggle("hidden")
+            dropdownIcon.classList.toggle("rotate-180")
+            return;
+        }
+        
+        // 处理语言选项点击
+        const langBtn = e.target.closest("#language-menu button");
+        if (langBtn) {
+            const code = langBtn.dataset.code
+            if (currentLocale === code) return;
+            
+            currentLangEl.textContent = languages[code].nativeName
+            menu.classList.add("hidden")
+            dropdownIcon.classList.remove("rotate-180")
+
+            updateCheckIcons(code)
+
+            const pathPrefix = code === 'zh' ? '/zh' : ''
+            window.location.href = `${window.origin}${pathPrefix}${window.location.pathname.replace(/^\/[^/]*\/posts/, '/posts')}`
+            return;
+        }
+        
+        // 点击外部关闭菜单
+        if (!e.target.closest(".language-switcher")) {
+            menu.classList.add("hidden")
+            dropdownIcon.classList.remove("rotate-180")
+        }
+    });
+
+    initLanguageSwitcher();
+    document.addEventListener("astro:after-swap", initLanguageSwitcher);
+</script>

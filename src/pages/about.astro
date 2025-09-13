@@ -1,0 +1,19 @@
+---
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import Breadcrumb from "../components/Breadcrumb.astro";
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="About">
+    <Header />
+    <Breadcrumb />
+    <main id="main-content">
+        <section id="about" class="prose mb-28 max-w-3xl prose-img:border-0">
+            <h1 class="text-2xl tracking-wider sm:text-3xl">About</h1>
+            <p>Hi, I'm ShuQi 👋</p>
+            <p>This blog shares programming knowledge and solutions for development issues.</p>
+        </section>
+    </main>
+    <Footer />
+</Layout>
