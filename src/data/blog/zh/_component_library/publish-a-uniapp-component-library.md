@@ -110,6 +110,8 @@ npm install --save-dev git-cz
 ```
 
 ### husky 和 commitlint
+commitlint 能校验 git commit 的提交信息是否符合规范，husky 提供了在对应 git 钩子运行代码的能力。
+
 根据[husky](https://typicode.github.io/husky/get-started.html)和[commitlint](https://commitlint.js.org/guides/local-setup)
 文档安装。
 
@@ -135,6 +137,7 @@ echo "pnpm dlx commitlint --edit `$1" > .husky/commit-msg
 安装好后在.husky/commit-msg中添加`pnpm dlx commitlint --edit \$1`，这样提交时就会校验是否符合规范了。
 
 ### standard-version
+用于更新版本号、基于提交生成变更记录和生成git标签。
 
 ```
 npm i --save-dev standard-version
